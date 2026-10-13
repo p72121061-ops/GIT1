@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="color-scheme" content="light">
+<title>Admin</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#F1E8D8; --sheet:#FAF6ED; --ink:#2A2318; --ash:#7A6F5C;
+    --stone:#DDD2BC; --green:#1D7A56; --gold:#B4872C; --red:#B23B3B;
+  }
+  *{box-sizing:border-box;margin:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    min-height:100vh; background:var(--bg); color:var(--ink);
+    font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif; line-height:1.5;
+    display:flex; justify-content:center; padding:clamp(20px,6vw,56px) 16px;
+  }
+  main{width:100%; max-width:520px}
+  [hidden]{display:none!important}
+
+  h1{font-family:'Fraunces',Georgia,serif; font-weight:600; font-size:clamp(30px,9vw,40px); line-height:1.08; letter-spacing:-.01em}
+  .sub{color:var(--ash); font-size:14px; margin-top:8px; max-width:44ch}
+
+  .sheet{background:var(--sheet); border:1px solid var(--stone); border-radius:14px; margin-top:26px; overflow:hidden}
+
+  /* ── login ── */
+  form{padding:20px 18px 22px; display:grid; gap:14px}
+  label{display:grid; gap:6px; font-size:13px; font-weight:600}
+  input{
+    font:inherit; font-size:16px; color:var(--ink); background:#fff;
+    border:1px solid var(--stone); border-radius:10px; padding:12px 14px; min-height:46px; width:100%;
+  }
+  input:focus-visible,button:focus-visible{outline:2px solid var(--gold); outline-offset:2px}
+  .primary{
+    font:inherit; font-weight:700; font-size:15px; color:#fff; background:var(--green);
+    border:0; border-radius:10px; min-height:48px; cursor:pointer;
+  }
+  .primary:disabled{opacity:.6; cursor:progress}
+  .err{color:var(--red); font-size:13px; min-height:1.3em}
+
+  /* ── panel ── */
+  .bar{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 18px; border-bottom:1px solid var(--stone)}
+  .count{font-family:'Fraunces',Georgia,serif; font-weight:600; font-size:22px}
+  .count small{font-family:'Inter',sans-serif; font-weight:500; font-size:13px; color:var(--ash); margin-left:6px}
+  .who{display:flex; align-items:center; gap:10px; min-width:0}
+  .who span{font-size:12px; color:var(--ash); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:30vw}
+  .link{font:inherit; font-size:13px; font-weight:600; color:var(--ink); background:none; border:1px solid var(--stone); border-radius:8px; padding:6px 10px; cursor:pointer}
+
+  ul{list-style:none; padding:0}
+  .row{display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:14px; padding:16px 18px; border-top:1px solid var(--stone)}
+  .row:first-child{border-top:0}
+  .ico{width:40px; height:40px; display:grid; place-items:center; font-size:20px; background:var(--bg); border-radius:10px}
+  .name{font-weight:600; font-size:15px}
+  .hint{font-size:13px; color:var(--ash); margin-top:2px}
+  .row[data-on="false"] .name{color:var(--ash)}
+  .row[data-on="false"] .ico{filter:grayscale(1); opacity:.6}
+
+  /* switch: state text ke saath, sirf rang pe nirbhar nahi */
+  .sw{
+    position:relative; flex:none; width:70px; height:36px; padding:0; cursor:pointer;
+    border-radius:18px; border:1px solid var(--stone); background:#E9DFCB;
+    transition:background .18s, border-color .18s;
+  }
+  .sw::before{
+    content:""; position:absolute; top:3px; left:3px; width:28px; height:28px; border-radius:50%;
+    background:#fff; box-shadow:0 1px 2px rgba(42,35,24,.35); transition:transform .18s;
+  }
+  .sw span{position:absolute; top:0; bottom:0; display:flex; align-items:center; font-size:11px; font-weight:700; pointer-events:none}
+  .sw .on{left:11px; color:#fff; opacity:0}
+  .sw .off{right:10px; color:var(--ash)}
+  .sw[aria-checked="true"]{background:var(--green); border-color:var(--green)}
+  .sw[aria-checked="true"]::before{transform:translateX(34px)}
+  .sw[aria-checked="true"] .on{opacity:1}
+  .sw[aria-checked="true"] .off{opacity:0}
+  .sw[aria-busy="true"]{opacity:.55; cursor:progress}
+
+  .status{font-size:13px; margin-top:14px; min-height:1.4em}
+  .status.bad{color:var(--red)}
+  .note{font-size:12px; color:var(--ash); margin-top:18px; max-width:52ch}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">Admin</h1>
+  <p class="sub" id="sub">Sirf site owner ke liye.</p>
+
+  <!-- LOGIN -->
+  <section class="sheet" id="loginView" hidden>
+    <form id="loginForm" novalidate>
+      <label>Email
+        <input id="email" type="email" autocomplete="username" inputmode="email" required>
+      </label>
+      <label>Password
+        <input id="password" type="password" autocomplete="current-password" required>
+      </label>
+      <button class="primary" id="loginBtn" type="submit">Sign in</button>
+      <p class="err" id="loginErr" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- MODULES -->
+  <section hidden id="panelView">
+    <div class="sheet">
+      <div class="bar">
+        <div class="count" id="count">—</div>
+        <div class="who"><span id="who"></span><button class="link" id="signOut" type="button">Sign out</button></div>
+      </div>
+      <ul id="list"></ul>
+    </div>
+    <p class="status" id="status" role="status" aria-live="polite"></p>
+    <p class="note">OFF karne se module sirf screen se chhupta hai, data delete nahi hota. Wapas ON karte hi sab pehle jaisa dikhega. Badlaav agle page load pe dikhta hai.</p>
+  </section>
+
+  <noscript><p class="err" style="margin-top:20px">Is page ke liye JavaScript chahiye.</p></noscript>
+</main>
+
+<script>
+(function(){
+  'use strict';
+  var SUPABASE_URL = 'https://ubhwmhiqmrhnuksjrqye.supabase.co';
+  var SUPABASE_KEY = 'sb_publishable_iTQYSDgtuFSi87sB1lnA-A_LxlSQYwj';
+
+  var MODULES = [
+    { key:'fees',       icon:'💳', name:'Fees',             hint:'Fee tab, payments, receipts aur defaulters list chhup jayenge.' },
+    { key:'attendance', icon:'📋', name:'Attendance',       hint:'Teacher aur student dono ka attendance tab chhup jayega.' },
+    { key:'timetable',  icon:'🗓️', name:'Timetable',        hint:'Teacher aur student dono ka timetable tab chhup jayega.' },
+    { key:'results',    icon:'📝', name:'Test Results',     hint:'Tests, marks aur student ka Results tab chhup jayega.' },
+    { key:'materials',  icon:'📚', name:'Study Material',   hint:'Links wala tab teacher aur student dono se chhup jayega.' },
+    { key:'topper',     icon:'🏆', name:'Talk to a Topper', hint:'Floating button, menu link aur teacher ka Toppers tab chhup jayenge.' }
+  ];
+
+  var $ = function(id){ return document.getElementById(id); };
+  var state = {}, busy = {}, sb = null;
+  MODULES.forEach(function(m){ state[m.key] = true; });
+
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function say(msg, bad){ var s = $('status'); s.textContent = msg || ''; s.className = 'status' + (bad ? ' bad' : ''); }
+  function loginErr(msg){ $('loginErr').textContent = msg || ''; }
+
+  function view(name){
+    var login = name === 'login';
+    $('loginView').hidden = !login;
+    $('panelView').hidden = login;
+    $('title').textContent = login ? 'Admin' : 'Modules';
+    $('sub').textContent = login ? 'Sirf site owner ke liye.' : 'Jo ON hai wahi teacher aur students ko dikhega.';
+  }
+
+  /* rows ek baar banti hain; baad mein sirf attributes badalte hain (keyboard focus na toote) */
+  function build(){
+    $('list').innerHTML = MODULES.map(function(m){
+      return '<li class="row" data-row="' + m.key + '" data-on="true">' +
+        '<div class="ico" aria-hidden="true">' + m.icon + '</div>' +
+        '<div><div class="name">' + esc(m.name) + '</div><div class="hint">' + esc(m.hint) + '</div></div>' +
+        '<button class="sw" type="button" role="switch" aria-checked="true" aria-label="' + esc(m.name) + '" data-key="' + m.key + '">' +
+          '<span class="on">ON</span><span class="off">OFF</span></button>' +
+      '</li>';
+    }).join('');
+    paint();
+  }
+
+  function paint(){
+    var on = 0;
+    MODULES.forEach(function(m){
+      var row = document.querySelector('[data-row="' + m.key + '"]');
+      var sw  = document.querySelector('[data-key="' + m.key + '"]');
+      if(state[m.key]) on++;
+      if(row) row.setAttribute('data-on', state[m.key] ? 'true' : 'false');
+      if(sw){
+        sw.setAttribute('aria-checked', state[m.key] ? 'true' : 'false');
+        sw.setAttribute('aria-busy', busy[m.key] ? 'true' : 'false');
+      }
+    });
+    $('count').innerHTML = on + '/' + MODULES.length + '<small>modules ON</small>';
+  }
+
+  async function loadFlags(){
+    var r = await sb.from('module_flags').select('key,enabled');
+    if(r.error){
+      say('Flags padhe nahi gaye: ' + r.error.message + ' (SQL run kiya?)', true);
+      return;
+    }
+    (r.data || []).forEach(function(row){ if(row.key in state) state[row.key] = row.enabled !== false; });
+  }
+
+  async function toggle(key){
+    if(busy[key]) return;
+    var m = MODULES.filter(function(x){ return x.key === key; })[0];
+    if(!m) return;
+    var next = !state[key];
+    busy[key] = true; state[key] = next; paint();           // turant dikhao
+    var r = await sb.from('module_flags').upsert({ key: key, enabled: next, updated_at: new Date().toISOString() });
+    busy[key] = false;
+    if(r.error){
+      state[key] = !next; paint();                           // wapas purani state
+      say(m.name + ' save nahi hua: ' + r.error.message, true);
+      return;
+    }
+    paint();
+    say(m.name + (next ? ' ON kar diya.' : ' OFF kar diya.'));
+  }
+
+  /* login ke baad: sirf admins table wale email ko andar aane do */
+  async function enter(email){
+    var r = await sb.rpc('is_admin');
+    if(r.error || r.data !== true){
+      await sb.auth.signOut();
+      view('login');
+      loginErr(r.error ? 'Admin check fail hua: ' + r.error.message : 'Ye account admin nahi hai.');
+      return false;
+    }
+    say('');
+    $('who').textContent = email || '';
+    view('panel');
+    build();
+    await loadFlags();
+    paint();
+    return true;
+  }
+
+  async function boot(){
+    view('login');
+    if(!window.supabase){ loginErr('Supabase load nahi hua. Network check karke page refresh karo.'); return; }
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { storageKey: 'vt-admin-auth', persistSession: true, detectSessionInUrl: false }   // main site ke login se alag
+    });
+    $('list').addEventListener('click', function(e){
+      var btn = e.target && e.target.closest ? e.target.closest('[data-key]') : null;
+      if(btn) toggle(btn.getAttribute ? btn.getAttribute('data-key') : btn.dataset.key);
+    });
+    $('signOut').addEventListener('click', async function(){
+      await sb.auth.signOut(); say(''); loginErr(''); view('login');
+    });
+    $('loginForm').addEventListener('submit', async function(e){
+      e.preventDefault();
+      var btn = $('loginBtn');
+      loginErr('');
+      var email = $('email').value.trim(), pass = $('password').value;
+      if(!email || !pass){ loginErr('Email aur password dono daalo.'); return; }
+      btn.disabled = true; btn.textContent = 'Signing in…';
+      try{
+        var r = await sb.auth.signInWithPassword({ email: email, password: pass });
+        if(r.error){ loginErr(r.error.message === 'Invalid login credentials' ? 'Email ya password galat hai.' : r.error.message); return; }
+        await enter(email);
+      }finally{
+        btn.disabled = false; btn.textContent = 'Sign in'; $('password').value = '';
+      }
+    });
+    var s = await sb.auth.getSession();
+    if(s && s.data && s.data.session) await enter(s.data.session.user && s.data.session.user.email);
+  }
+
+  boot();
+})();
+</script>
+</body>
+</html>
