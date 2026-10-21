@@ -1,0 +1,83 @@
+/* ═══════════════════════════════════════════════════════════════
+   THEMES — har coaching ka apna rang yahin se badalta hai.
+
+   Kaise use karein:
+   • <html data-theme="blue"> likho → blue theme.  Attribute hata do → beige (default).
+   • Naya theme: neeche wala blue block copy karo, naam badlo (html[data-theme="green"]),
+     aur sirf rang ke values badlo. Baaki site/CSS ko haath nahi lagana.
+   • "-rgb" wale tokens "R,G,B" format mein hain (shadow/transparent ke liye) —
+     unhe apne hex ke saath match rakhna.
+   Status ke rang (paid = green, due = red, WhatsApp green) jaanbujhkar theme se alag hain.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── DEFAULT: BEIGE (original) ── */
+:root{
+  /* accent (gold) */
+  --g:#B4872C;          --g-rgb:180,135,44;
+  --gold2:#C9A227;      --gold2-rgb:201,162,39;
+  --gold-light:#D4A83A;
+  --gold-dark:#8A6118;  --gold-dark-rgb:150,105,24;
+  --bronze:#A66A2E;     --bronze-rgb:166,106,46;   /* warning / bronze medal: theme se alag rehta hai */
+  --on-accent:#1A0F00;                       /* accent ke upar likha text */
+
+  /* backgrounds */
+  --page:#F1E8D8;                            /* poore page / panels ka background */
+  --sheet:#FAF3E8;
+  --bg:#FAF6ED;         --bg-rgb:250,246,237;
+  --warm:#FFF8EA;
+  --paper:#FFFDF8;
+  --ivory2:#F4EEE2;
+  --pearl:#FFFFFF;
+
+  /* lines */
+  --line:#E7DCC5;
+  --stone:#DDD2BC;      --stone-rgb:221,210,188;
+  --muted-line:#B3A890;
+  --track:#E9DFCB;                           /* switch ka OFF track */
+  --disabled:#EDE4D3;                        /* disabled button */
+
+  /* text */
+  --ink:#2A2318;        --ink-rgb:42,35,24;
+  --ink-deep-rgb:20,15,10;                   /* gehre shadows */
+  --ash:#7A6F5C;
+
+  /* fixed accents (class chips, status) */
+  --b:#24449E;
+  --t:#1D7A56;
+  --red:#B23B3B;
+
+  /* 3D background shapes */
+  --three-ivory:#F0E8D8;
+  --three-cream:#E8E0D0;
+  --three-pale:#C9A96E;
+}
+
+/* ── BLUE: light dark blue ── */
+html[data-theme="blue"]{
+  --g:#2455B3;          --g-rgb:36,85,179;
+  --gold2:#4F86E0;      --gold2-rgb:79,134,224;
+  --gold-light:#6FA3EB;
+  --gold-dark:#173C86;  --gold-dark-rgb:23,60,134;
+  --on-accent:#FFFFFF;
+
+  --page:#E4ECF7;
+  --sheet:#F1F6FC;
+  --bg:#F3F7FC;         --bg-rgb:243,247,252;
+  --warm:#EEF4FC;
+  --paper:#F9FBFF;
+  --ivory2:#EAF1FA;
+
+  --line:#D5E1F1;
+  --stone:#C4D3E8;      --stone-rgb:196,211,232;
+  --muted-line:#93A8C6;
+  --track:#D2DEEF;
+  --disabled:#DCE6F4;
+
+  --ink:#14213D;        --ink-rgb:20,33,61;
+  --ink-deep-rgb:11,21,48;
+  --ash:#58698A;
+
+  --three-ivory:#E4ECF7;
+  --three-cream:#D5E1F1;
+  --three-pale:#7FA6E3;
+}
