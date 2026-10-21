@@ -40,7 +40,7 @@
         'position:fixed',
         'top:0','left:0','right:0','bottom:0',
         'z-index:9999',
-        'background:#FAF3E8',
+        'background:var(--sheet)',
         'overflow-y:auto',
         '-webkit-overflow-scrolling:touch',
         'padding:0',
@@ -100,22 +100,22 @@
   async function renderAttendancePanel(){
     const p = ensurePanel();
     p.innerHTML = `
-      <div style="position:sticky;top:0;z-index:10;background:#FAF3E8;border-bottom:1px solid #E7DCC5;padding:14px 16px;display:flex;align-items:center;gap:12px;">
-        <button onclick="window.modBack()" style="padding:7px 13px;border:1px solid #DDD2BC;border-radius:10px;background:#fff;color:#2A2318;font-size:13px;font-weight:700;cursor:pointer;">← Back</button>
-        <span style="font-size:15px;font-weight:700;color:#2A2318;">📋 Attendance</span>
+      <div style="position:sticky;top:0;z-index:10;background:var(--sheet);border-bottom:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;gap:12px;">
+        <button onclick="window.modBack()" style="padding:7px 13px;border:1px solid var(--stone);border-radius:10px;background:#fff;color:var(--ink);font-size:13px;font-weight:700;cursor:pointer;">← Back</button>
+        <span style="font-size:15px;font-weight:700;color:var(--ink);">📋 Attendance</span>
       </div>
       <div style="padding:16px;">
-      <p style="font-size:11px;color:#7A6F5C;margin-bottom:14px;">Pick a date and class, mark absentees, then save. Everyone defaults to Present.</p>
+      <p style="font-size:11px;color:var(--ash);margin-bottom:14px;">Pick a date and class, mark absentees, then save. Everyone defaults to Present.</p>
       <div style="display:flex;gap:10px;margin-bottom:12px;">
         <input id="attDate" type="date" value="${att.date}" max="${todayStr()}" onchange="modAttChange()"
-          style="flex:1;padding:10px 12px;border-radius:10px;border:1px solid #DDD2BC;background:#F1E8D8;color:#2A2318;font-size:13px;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;">
+          style="flex:1;padding:10px 12px;border-radius:10px;border:1px solid var(--stone);background:var(--page);color:var(--ink);font-size:13px;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;">
         <select id="attCls" onchange="modAttChange()"
-          style="padding:10px 12px;border-radius:10px;border:1px solid #DDD2BC;background:#F1E8D8;color:#2A2318;font-size:13px;font-family:'Inter',sans-serif;outline:none;">
+          style="padding:10px 12px;border-radius:10px;border:1px solid var(--stone);background:var(--page);color:var(--ink);font-size:13px;font-family:'Inter',sans-serif;outline:none;">
           ${['10','11','12'].map(c=>`<option value="${c}" ${att.cls===c?'selected':''}>Class ${c}</option>`).join('')}
         </select>
       </div>
-      <div id="attSummary" style="font-size:12px;font-weight:600;color:#7A6F5C;margin-bottom:8px;"></div>
-      <div id="attList"><p style="font-size:12px;color:#7A6F5C;padding:12px 0;">Loading…</p></div>
+      <div id="attSummary" style="font-size:12px;font-weight:600;color:var(--ash);margin-bottom:8px;"></div>
+      <div id="attList"><p style="font-size:12px;color:var(--ash);padding:12px 0;">Loading…</p></div>
       <button id="attSaveBtn" onclick="modAttSave()" style="width:100%;margin-top:12px;padding:13px;border:none;border-radius:12px;background:#1D7A56;color:#fff;font-size:14px;font-weight:700;cursor:pointer;">💾 Save Attendance</button>
       </div>
     `;
@@ -150,20 +150,20 @@
     if(!wrap) return;
     const list = classStudents();
     if(!list.length){
-      wrap.innerHTML = `<p style="font-size:12px;color:#7A6F5C;padding:12px 0;">No students in Class ${esc(att.cls)} yet.</p>`;
+      wrap.innerHTML = `<p style="font-size:12px;color:var(--ash);padding:12px 0;">No students in Class ${esc(att.cls)} yet.</p>`;
       document.getElementById('attSummary').textContent = '';
       return;
     }
     wrap.innerHTML = list.map(s => {
       const pres = att.marks[s.id] === 'present';
       return `
-      <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E7DCC5;border-radius:12px;padding:10px 12px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;">
         <div style="flex:1;min-width:0;">
-          <div style="font-size:13px;font-weight:600;color:#2A2318;">${esc(s.name)}</div>
-          ${s.roll?`<div style="font-size:10px;color:#7A6F5C;">Roll ${esc(s.roll)}</div>`:''}
+          <div style="font-size:13px;font-weight:600;color:var(--ink);">${esc(s.name)}</div>
+          ${s.roll?`<div style="font-size:10px;color:var(--ash);">Roll ${esc(s.roll)}</div>`:''}
         </div>
-        <button onclick="modAttMark(${s.id},'present')" style="padding:7px 14px;border-radius:8px;border:1px solid ${pres?'#1D7A56':'#DDD2BC'};background:${pres?'#1D7A56':'transparent'};color:${pres?'#fff':'#7A6F5C'};font-size:12px;font-weight:700;cursor:pointer;">P</button>
-        <button onclick="modAttMark(${s.id},'absent')"  style="padding:7px 14px;border-radius:8px;border:1px solid ${!pres?'#B23B3B':'#DDD2BC'};background:${!pres?'#B23B3B':'transparent'};color:${!pres?'#fff':'#7A6F5C'};font-size:12px;font-weight:700;cursor:pointer;">A</button>
+        <button onclick="modAttMark(${s.id},'present')" style="padding:7px 14px;border-radius:8px;border:1px solid ${pres?'#1D7A56':'var(--stone)'};background:${pres?'#1D7A56':'transparent'};color:${pres?'#fff':'var(--ash)'};font-size:12px;font-weight:700;cursor:pointer;">P</button>
+        <button onclick="modAttMark(${s.id},'absent')"  style="padding:7px 14px;border-radius:8px;border:1px solid ${!pres?'#B23B3B':'var(--stone)'};background:${!pres?'#B23B3B':'transparent'};color:${!pres?'#fff':'var(--ash)'};font-size:12px;font-weight:700;cursor:pointer;">A</button>
       </div>`;
     }).join('');
     const total = list.length;
@@ -201,7 +201,7 @@
     const rows = spAtt.rows, total = rows.length;
     const present = rows.filter(r => r.status === 'present').length;
     const pct = total ? Math.round(present * 100 / total) : null;
-    const col = pct === null ? '#7A6F5C' : pct >= 75 ? '#1D7A56' : pct >= 60 ? '#C9A227' : '#B23B3B';
+    const col = pct === null ? 'var(--ash)' : pct >= 75 ? '#1D7A56' : pct >= 60 ? '#C9A227' : '#B23B3B';
     const shown = spAtt.all ? rows : rows.slice(0, 30);
     const trs = shown.map(r => {
       const d = new Date(r.date + 'T00:00:00'), ok = r.status === 'present';
@@ -256,19 +256,19 @@
   // ── TIMETABLE — TEACHER SIDE ──
   async function renderTimetablePanel(){
     const p = ensurePanel();
-    const inp = "padding:10px 12px;border-radius:10px;border:1px solid #DDD2BC;background:#F1E8D8;color:#2A2318;font-size:13px;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;";
+    const inp = "padding:10px 12px;border-radius:10px;border:1px solid var(--stone);background:var(--page);color:var(--ink);font-size:13px;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;";
     p.innerHTML = `
-      <div style="position:sticky;top:0;z-index:10;background:#FAF3E8;border-bottom:1px solid #E7DCC5;padding:14px 16px;display:flex;align-items:center;gap:12px;">
-        <button onclick="window.modBack()" style="padding:7px 13px;border:1px solid #DDD2BC;border-radius:10px;background:#fff;color:#2A2318;font-size:13px;font-weight:700;cursor:pointer;">← Back</button>
-        <span style="font-size:15px;font-weight:700;color:#2A2318;">🗓️ Timetable</span>
+      <div style="position:sticky;top:0;z-index:10;background:var(--sheet);border-bottom:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;gap:12px;">
+        <button onclick="window.modBack()" style="padding:7px 13px;border:1px solid var(--stone);border-radius:10px;background:#fff;color:var(--ink);font-size:13px;font-weight:700;cursor:pointer;">← Back</button>
+        <span style="font-size:15px;font-weight:700;color:var(--ink);">🗓️ Timetable</span>
       </div>
       <div style="padding:16px;">
-      <p style="font-size:11px;color:#7A6F5C;margin-bottom:14px;">Pick a class, add its weekly slots. Students see only their own class.</p>
+      <p style="font-size:11px;color:var(--ash);margin-bottom:14px;">Pick a class, add its weekly slots. Students see only their own class.</p>
       <select id="ttCls" onchange="modTtChange()" style="${inp}width:100%;margin-bottom:12px;">
         ${['10','11','12'].map(c=>`<option value="${c}" ${tt.cls===c?'selected':''}>Class ${c}</option>`).join('')}
       </select>
-      <div style="background:#fff8ea;border:1px solid #E7DCC5;border-radius:14px;padding:12px;margin-bottom:14px;">
-        <div style="font-size:12px;font-weight:700;color:#2A2318;margin-bottom:8px;">➕ Add a slot</div>
+      <div style="background:var(--warm);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:14px;">
+        <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:8px;">➕ Add a slot</div>
         <select id="ttDay" style="${inp}width:100%;margin-bottom:8px;">
           ${DAYS.map(d=>`<option value="${d}">${d}</option>`).join('')}
         </select>
@@ -294,7 +294,7 @@
   async function loadTimetable(){
     const wrap = document.getElementById('ttList');
     if(!wrap) return;
-    wrap.innerHTML = '<p style="font-size:12px;color:#7A6F5C;padding:8px 0;">Loading…</p>';
+    wrap.innerHTML = '<p style="font-size:12px;color:var(--ash);padding:8px 0;">Loading…</p>';
     const { data, error } = await sb.from('timetable').select('*').eq('cls', tt.cls);
     if(error){
       wrap.innerHTML = `<p style="font-size:12px;color:#B23B3B;padding:8px 0;">Load failed: ${esc(error.message)}<br>(Has phase3_schema.sql been run?)</p>`;
@@ -302,18 +302,18 @@
     }
     const rows = (data||[]).sort(byTime);
     if(!rows.length){
-      wrap.innerHTML = `<p style="font-size:12px;color:#7A6F5C;padding:8px 0;">No slots for Class ${esc(tt.cls)} yet.</p>`;
+      wrap.innerHTML = `<p style="font-size:12px;color:var(--ash);padding:8px 0;">No slots for Class ${esc(tt.cls)} yet.</p>`;
       return;
     }
     wrap.innerHTML = DAYS.filter(d => rows.some(r => r.day_of_week === d)).map(d => `
-      <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#B4872C;margin:14px 0 6px;">${d}</div>
+      <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--g);margin:14px 0 6px;">${d}</div>
       ${rows.filter(r => r.day_of_week === d).map(r => `
-        <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E7DCC5;border-radius:12px;padding:10px 12px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;">
           <div style="flex:1;min-width:0;">
-            <div style="font-size:13px;font-weight:600;color:#2A2318;">${esc(r.subject)}</div>
-            <div style="font-size:11px;color:#7A6F5C;">${esc(r.time_slot)}${r.teacher_name ? ' · ' + esc(r.teacher_name) : ''}</div>
+            <div style="font-size:13px;font-weight:600;color:var(--ink);">${esc(r.subject)}</div>
+            <div style="font-size:11px;color:var(--ash);">${esc(r.time_slot)}${r.teacher_name ? ' · ' + esc(r.teacher_name) : ''}</div>
           </div>
-          <button onclick="modTtDelete(${r.id})" aria-label="Delete slot" style="padding:6px 10px;border-radius:8px;border:1px solid #DDD2BC;background:transparent;color:#B23B3B;font-size:12px;font-weight:700;cursor:pointer;">✕</button>
+          <button onclick="modTtDelete(${r.id})" aria-label="Delete slot" style="padding:6px 10px;border-radius:8px;border:1px solid var(--stone);background:transparent;color:#B23B3B;font-size:12px;font-weight:700;cursor:pointer;">✕</button>
         </div>`).join('')}
     `).join('');
   }
@@ -388,11 +388,11 @@
   }
 
   // ── TEST RESULTS — SHARED HELPERS ──
-  const INP = "padding:10px 12px;border-radius:10px;border:1px solid #DDD2BC;background:#F1E8D8;color:#2A2318;font-size:13px;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;";
+  const INP = "padding:10px 12px;border-radius:10px;border:1px solid var(--stone);background:var(--page);color:var(--ink);font-size:13px;font-family:'Inter',sans-serif;outline:none;box-sizing:border-box;";
   const hdr = (title, onclick, label) => `
-    <div style="position:sticky;top:0;z-index:10;background:#FAF3E8;border-bottom:1px solid #E7DCC5;padding:14px 16px;display:flex;align-items:center;gap:12px;">
-      <button onclick="${onclick}" style="padding:7px 13px;border:1px solid #DDD2BC;border-radius:10px;background:#fff;color:#2A2318;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">${label}</button>
-      <span style="font-size:15px;font-weight:700;color:#2A2318;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${title}</span>
+    <div style="position:sticky;top:0;z-index:10;background:var(--sheet);border-bottom:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;gap:12px;">
+      <button onclick="${onclick}" style="padding:7px 13px;border:1px solid var(--stone);border-radius:10px;background:#fff;color:var(--ink);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">${label}</button>
+      <span style="font-size:15px;font-weight:700;color:var(--ink);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${title}</span>
     </div>`;
   const fmtN    = n => String(+Number(n).toFixed(2));
   const pctOf   = (m, t) => t ? Math.round(Number(m) * 100 / Number(t)) : 0;
@@ -412,14 +412,14 @@
     const p = ensurePanel();
     p.innerHTML = hdr('📝 Test Results', 'window.modBack()', '← Back') + `
       <div style="padding:16px;">
-        <p style="font-size:11px;color:#7A6F5C;margin-bottom:14px;">Class chuno, naya test banao, phir marks daalo. Students apne marks apne panel mein dekhenge.</p>
+        <p style="font-size:11px;color:var(--ash);margin-bottom:14px;">Class chuno, naya test banao, phir marks daalo. Students apne marks apne panel mein dekhenge.</p>
         <div style="display:flex;gap:10px;margin-bottom:12px;">
           <select id="resCls" onchange="modResCls()" style="${INP}">
             ${['10','11','12'].map(c => `<option value="${c}" ${res.cls===c?'selected':''}>Class ${c}</option>`).join('')}
           </select>
           <button onclick="modResToggleForm()" style="flex:1;padding:10px;border:none;border-radius:10px;background:#1D7A56;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">＋ New Test</button>
         </div>
-        <div id="resForm" style="display:none;background:#fff;border:1px solid #E7DCC5;border-radius:12px;padding:12px;margin-bottom:12px;">
+        <div id="resForm" style="display:none;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px;">
           <input id="resTitle" type="text" placeholder="Test name (e.g. Unit Test 1)" maxlength="60" style="${INP}width:100%;margin-bottom:8px;">
           <input id="resSubject" type="text" placeholder="Subject (e.g. Maths)" maxlength="40" style="${INP}width:100%;margin-bottom:8px;">
           <div style="display:flex;gap:8px;margin-bottom:10px;">
@@ -428,7 +428,7 @@
           </div>
           <button id="resCreateBtn" onclick="modResCreate()" style="width:100%;padding:11px;border:none;border-radius:10px;background:#1D7A56;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">Create Test</button>
         </div>
-        <div id="resList"><p style="font-size:12px;color:#7A6F5C;padding:12px 0;">Loading…</p></div>
+        <div id="resList"><p style="font-size:12px;color:var(--ash);padding:12px 0;">Loading…</p></div>
       </div>`;
     await loadTests();
   }
@@ -468,7 +468,7 @@
     const list = document.getElementById('resList');
     if(!list) return;
     if(!res.tests.length){
-      list.innerHTML = `<p style="font-size:12px;color:#7A6F5C;padding:12px 0;">Class ${esc(res.cls)} ka abhi koi test nahi hai. "＋ New Test" dabao.</p>`;
+      list.innerHTML = `<p style="font-size:12px;color:var(--ash);padding:12px 0;">Class ${esc(res.cls)} ka abhi koi test nahi hai. "＋ New Test" dabao.</p>`;
       return;
     }
     const classCount = resStudents(res.cls).length;
@@ -476,13 +476,13 @@
       const st = res.stats[t.id];
       const avg = st && st.n ? Math.round(st.sum / st.n * 100 / t.total_marks) : null;
       return `
-      <div onclick="modResOpen(${t.id})" style="background:#fff;border:1px solid #E7DCC5;border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;">
+      <div onclick="modResOpen(${t.id})" style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;">
         <div style="display:flex;justify-content:space-between;gap:10px;">
-          <div style="font-size:14px;font-weight:700;color:#2A2318;">${esc(t.title)}</div>
-          <div style="font-size:12px;font-weight:700;color:#7A6F5C;white-space:nowrap;">${fmtN(t.total_marks)} marks</div>
+          <div style="font-size:14px;font-weight:700;color:var(--ink);">${esc(t.title)}</div>
+          <div style="font-size:12px;font-weight:700;color:var(--ash);white-space:nowrap;">${fmtN(t.total_marks)} marks</div>
         </div>
-        <div style="font-size:11px;color:#7A6F5C;margin-top:3px;">${esc(t.subject)} · ${fmtDate(t.test_date)}</div>
-        <div style="font-size:12px;font-weight:600;margin-top:6px;color:${st ? pctCol(avg) : '#7A6F5C'};">
+        <div style="font-size:11px;color:var(--ash);margin-top:3px;">${esc(t.subject)} · ${fmtDate(t.test_date)}</div>
+        <div style="font-size:12px;font-weight:600;margin-top:6px;color:${st ? pctCol(avg) : 'var(--ash)'};">
           ${st ? `${st.n}/${classCount} marked · Avg ${avg}%` : 'Marks abhi nahi daale'}
         </div>
       </div>`;
@@ -518,30 +518,30 @@
     res.existing = {};
     const p = ensurePanel();
     p.scrollTop = 0;
-    p.innerHTML = hdr(esc(t.title), 'modResBack()', '← Tests') + `<div style="padding:16px;"><p style="font-size:12px;color:#7A6F5C;">Loading…</p></div>`;
+    p.innerHTML = hdr(esc(t.title), 'modResBack()', '← Tests') + `<div style="padding:16px;"><p style="font-size:12px;color:var(--ash);">Loading…</p></div>`;
     const { data, error } = await sb.from('results').select('student_id,marks_obtained').eq('test_id', t.id);
     if(error){ alert('⚠️ Load failed: ' + error.message); return; }
     (data || []).forEach(r => { res.existing[r.student_id] = r.marks_obtained; });
     const list = resStudents(t.cls);
     p.innerHTML = hdr(esc(t.title), 'modResBack()', '← Tests') + `
       <div style="padding:16px;">
-        <div style="font-size:12px;color:#7A6F5C;margin-bottom:12px;">${esc(t.subject)} · Class ${esc(t.cls)} · ${fmtDate(t.test_date)} · Total <b>${fmtN(t.total_marks)}</b></div>
+        <div style="font-size:12px;color:var(--ash);margin-bottom:12px;">${esc(t.subject)} · Class ${esc(t.cls)} · ${fmtDate(t.test_date)} · Total <b>${fmtN(t.total_marks)}</b></div>
         ${list.length ? list.map(s => {
           const v = res.existing[s.id];
           return `
-          <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid #E7DCC5;border-radius:12px;padding:10px 12px;margin-bottom:8px;">
+          <div style="display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;">
             <div style="flex:1;min-width:0;">
-              <div style="font-size:13px;font-weight:600;color:#2A2318;">${esc(s.name)}</div>
-              ${s.roll ? `<div style="font-size:10px;color:#7A6F5C;">Roll ${esc(s.roll)}</div>` : ''}
+              <div style="font-size:13px;font-weight:600;color:var(--ink);">${esc(s.name)}</div>
+              ${s.roll ? `<div style="font-size:10px;color:var(--ash);">Roll ${esc(s.roll)}</div>` : ''}
             </div>
             <input id="resM_${s.id}" type="number" inputmode="decimal" min="0" max="${t.total_marks}" step="any"
               value="${v == null ? '' : fmtN(v)}" placeholder="—"
               style="${INP}width:78px;text-align:center;font-weight:700;">
-            <span style="font-size:12px;color:#7A6F5C;white-space:nowrap;">/ ${fmtN(t.total_marks)}</span>
+            <span style="font-size:12px;color:var(--ash);white-space:nowrap;">/ ${fmtN(t.total_marks)}</span>
           </div>`;
-        }).join('') : `<p style="font-size:12px;color:#7A6F5C;">Class ${esc(t.cls)} mein abhi koi student nahi hai.</p>`}
+        }).join('') : `<p style="font-size:12px;color:var(--ash);">Class ${esc(t.cls)} mein abhi koi student nahi hai.</p>`}
         ${list.length ? `<button id="resSaveBtn" onclick="modResSave()" style="width:100%;margin-top:6px;padding:13px;border:none;border-radius:12px;background:#1D7A56;color:#fff;font-size:14px;font-weight:700;cursor:pointer;">💾 Save Marks</button>` : ''}
-        <button onclick="modResDelete()" style="width:100%;margin-top:10px;padding:11px;border:1px solid #DDD2BC;border-radius:12px;background:transparent;color:#B23B3B;font-size:13px;font-weight:700;cursor:pointer;">🗑️ Delete this test</button>
+        <button onclick="modResDelete()" style="width:100%;margin-top:10px;padding:11px;border:1px solid var(--stone);border-radius:12px;background:transparent;color:#B23B3B;font-size:13px;font-weight:700;cursor:pointer;">🗑️ Delete this test</button>
       </div>`;
   };
 
@@ -602,12 +602,12 @@
       if(String(window._currentStudentId) !== String(studentId)) return;
       if(error){
         console.warn('Student results load failed:', error.message);
-        pane.innerHTML = '<p style="font-size:12px;color:#7A6F5C;margin-top:14px;">Results abhi load nahi ho paaye. Thodi der baad try karo.</p>';
+        pane.innerHTML = '<p style="font-size:12px;color:var(--ash);margin-top:14px;">Results abhi load nahi ho paaye. Thodi der baad try karo.</p>';
         return;
       }
       const rows = data || [];
       if(!rows.length){
-        pane.innerHTML = '<p style="font-size:12px;color:#7A6F5C;margin-top:14px;">Abhi koi test result nahi aaya.</p>';
+        pane.innerHTML = '<p style="font-size:12px;color:var(--ash);margin-top:14px;">Abhi koi test result nahi aaya.</p>';
         return;
       }
       const pcts = rows.map(r => pctOf(r.marks_obtained, r.total_marks));
@@ -659,19 +659,19 @@
     const p = ensurePanel();
     p.innerHTML = hdr('📚 Study Materials', 'window.modBack()', '← Back') + `
       <div style="padding:16px;">
-        <p style="font-size:11px;color:#7A6F5C;margin-bottom:12px;">Drive / YouTube link daalo. Students ko sirf unki apni class ka material dikhega.</p>
+        <p style="font-size:11px;color:var(--ash);margin-bottom:12px;">Drive / YouTube link daalo. Students ko sirf unki apni class ka material dikhega.</p>
         <select id="matCls" onchange="modMatCls()" style="${INP}width:100%;margin-bottom:12px;">
           ${['10','11','12'].map(c => `<option value="${c}" ${mat.cls===c?'selected':''}>Class ${c}</option>`).join('')}
         </select>
-        <div style="background:#fff;border:1px solid #E7DCC5;border-radius:12px;padding:12px;margin-bottom:14px;">
+        <div style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:14px;">
           <input id="matTitle" type="text" placeholder="Title (e.g. Trigonometry Notes)" maxlength="80" style="${INP}width:100%;margin-bottom:8px;">
           <input id="matSubject" type="text" list="matSubjects" placeholder="Subject (e.g. Maths)" maxlength="40" style="${INP}width:100%;margin-bottom:8px;">
           <datalist id="matSubjects"></datalist>
           <input id="matUrl" type="url" inputmode="url" placeholder="Drive / YouTube link paste karo" style="${INP}width:100%;margin-bottom:8px;">
-          <p style="font-size:11px;color:#B4872C;margin:0 0 10px;">⚠️ Drive link mein <b>"Anyone with the link → Viewer"</b> zaroor ON karo, warna students khol nahi payenge.</p>
+          <p style="font-size:11px;color:var(--g);margin:0 0 10px;">⚠️ Drive link mein <b>"Anyone with the link → Viewer"</b> zaroor ON karo, warna students khol nahi payenge.</p>
           <button id="matAddBtn" onclick="modMatAdd()" style="width:100%;padding:12px;border:none;border-radius:10px;background:#1D7A56;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">＋ Add Material</button>
         </div>
-        <div id="matList"><p style="font-size:12px;color:#7A6F5C;">Loading…</p></div>
+        <div id="matList"><p style="font-size:12px;color:var(--ash);">Loading…</p></div>
       </div>`;
     await loadMaterials();
   }
@@ -697,24 +697,24 @@
       dl.innerHTML = subs.map(s => `<option value="${esc(s)}"></option>`).join('');
     }
     if(!mat.items.length){
-      list.innerHTML = `<p style="font-size:12px;color:#7A6F5C;">Class ${esc(mat.cls)} ka abhi koi material nahi hai.</p>`;
+      list.innerHTML = `<p style="font-size:12px;color:var(--ash);">Class ${esc(mat.cls)} ka abhi koi material nahi hai.</p>`;
       return;
     }
     list.innerHTML = mat.items.map(i => {
       const k = KIND_ICON[i.kind] ? i.kind : 'link';
       const safe = /^https?:\/\//i.test(i.url) ? i.url : '#';
       return `
-      <div style="background:#fff;border:1px solid #E7DCC5;border-radius:12px;padding:12px 14px;margin-bottom:8px;">
+      <div style="background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;">
         <div style="display:flex;gap:10px;align-items:flex-start;">
           <div style="font-size:20px;line-height:1.2;">${KIND_ICON[k]}</div>
           <div style="flex:1;min-width:0;">
-            <div style="font-size:14px;font-weight:700;color:#2A2318;word-break:break-word;">${esc(i.title)}</div>
-            <div style="font-size:11px;color:#7A6F5C;margin-top:2px;">${esc(i.subject)} · ${KIND_LABEL[k]} · ${matDate(i.created_at)}</div>
+            <div style="font-size:14px;font-weight:700;color:var(--ink);word-break:break-word;">${esc(i.title)}</div>
+            <div style="font-size:11px;color:var(--ash);margin-top:2px;">${esc(i.subject)} · ${KIND_LABEL[k]} · ${matDate(i.created_at)}</div>
           </div>
         </div>
         <div style="display:flex;gap:8px;margin-top:10px;">
-          <a href="${esc(safe)}" target="_blank" rel="noopener noreferrer" style="flex:1;text-align:center;padding:9px;border-radius:10px;border:1px solid #DDD2BC;background:#F1E8D8;color:#2A2318;font-size:12px;font-weight:700;text-decoration:none;">Open ↗</a>
-          <button onclick="modMatDelete(${i.id})" style="padding:9px 14px;border-radius:10px;border:1px solid #DDD2BC;background:transparent;color:#B23B3B;font-size:12px;font-weight:700;cursor:pointer;">🗑️ Delete</button>
+          <a href="${esc(safe)}" target="_blank" rel="noopener noreferrer" style="flex:1;text-align:center;padding:9px;border-radius:10px;border:1px solid var(--stone);background:var(--page);color:var(--ink);font-size:12px;font-weight:700;text-decoration:none;">Open ↗</a>
+          <button onclick="modMatDelete(${i.id})" style="padding:9px 14px;border-radius:10px;border:1px solid var(--stone);background:transparent;color:#B23B3B;font-size:12px;font-weight:700;cursor:pointer;">🗑️ Delete</button>
         </div>
       </div>`;
     }).join('');
@@ -758,7 +758,7 @@
     if(!pane) return;
     const chip = (label, idx) => {
       const on = idx === sel;
-      return `<button onclick="spMatFilter(${idx})" style="flex:0 0 auto;padding:6px 12px;border-radius:999px;border:1px solid ${on?'#1D7A56':'#DDD2BC'};background:${on?'#1D7A56':'#fff'};color:${on?'#fff':'#2A2318'};font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">${esc(label)}</button>`;
+      return `<button onclick="spMatFilter(${idx})" style="flex:0 0 auto;padding:6px 12px;border-radius:999px;border:1px solid ${on?'#1D7A56':'var(--stone)'};background:${on?'#1D7A56':'#fff'};color:${on?'#fff':'var(--ink)'};font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">${esc(label)}</button>`;
     };
     const rows = sel < 0 ? spMat.rows : spMat.rows.filter(r => r.subject === spMat.subjects[sel]);
     pane.innerHTML = `
@@ -768,11 +768,11 @@
       ${rows.map(r => {
         const k = KIND_ICON[r.kind] ? r.kind : 'link';
         return `
-        <a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid #E7DCC5;text-decoration:none;">
+        <a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);text-decoration:none;">
           <div style="font-size:22px;">${KIND_ICON[k]}</div>
           <div style="flex:1;min-width:0;">
-            <div style="font-size:13px;font-weight:600;color:#2A2318;word-break:break-word;">${esc(r.title)}</div>
-            <div style="font-size:11px;color:#7A6F5C;">${esc(r.subject)} · ${KIND_LABEL[k]} · ${matDate(r.created_at)}</div>
+            <div style="font-size:13px;font-weight:600;color:var(--ink);word-break:break-word;">${esc(r.title)}</div>
+            <div style="font-size:11px;color:var(--ash);">${esc(r.subject)} · ${KIND_LABEL[k]} · ${matDate(r.created_at)}</div>
           </div>
           <div style="font-size:12px;font-weight:700;color:#1D7A56;white-space:nowrap;">Open ›</div>
         </a>`;
@@ -792,12 +792,12 @@
       if(String(window._currentStudentId) !== String(studentId)) return;
       if(error){
         console.warn('Study materials load failed:', error.message);
-        pane.innerHTML = '<p style="font-size:12px;color:#7A6F5C;margin-top:14px;">Material abhi load nahi ho paaya. Thodi der baad try karo.</p>';
+        pane.innerHTML = '<p style="font-size:12px;color:var(--ash);margin-top:14px;">Material abhi load nahi ho paaya. Thodi der baad try karo.</p>';
         return;
       }
       const rows = (data || []).filter(r => /^https?:\/\//i.test(r.url));
       if(!rows.length){
-        pane.innerHTML = '<p style="font-size:12px;color:#7A6F5C;margin-top:14px;">Abhi koi study material nahi aaya.</p>';
+        pane.innerHTML = '<p style="font-size:12px;color:var(--ash);margin-top:14px;">Abhi koi study material nahi aaya.</p>';
         return;
       }
       spMat = { rows, subjects: [...new Set(rows.map(r => r.subject))].sort() };
@@ -823,10 +823,10 @@
 
     const bar = document.createElement('div');
     bar.id = 'spTabBar';
-    bar.style.cssText = 'display:flex;gap:4px;margin:18px 0 4px;border-bottom:1px solid #E7DCC5;overflow-x:auto;';
+    bar.style.cssText = 'display:flex;gap:4px;margin:18px 0 4px;border-bottom:1px solid var(--line);overflow-x:auto;';
     bar.innerHTML = tabs.map((t, i) => `
       <button id="spTab_${t.key}" onclick="spSwitchTab('${t.key}')"
-        style="flex:1 0 auto;padding:10px 10px;border:none;background:none;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;border-bottom:2px solid ${i===0?'#1D7A56':'transparent'};color:${i===0?'#1D7A56':'#7A6F5C'};">
+        style="flex:1 0 auto;padding:10px 10px;border:none;background:none;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Inter',sans-serif;border-bottom:2px solid ${i===0?'#1D7A56':'transparent'};color:${i===0?'#1D7A56':'var(--ash)'};">
         ${t.label}
       </button>`).join('');
     // Tabs UPAR (frequent use), fee section NEECHE
@@ -852,7 +852,7 @@
       const active = t.key === tab;
       if(btn){
         btn.style.borderBottom = active ? '2px solid #1D7A56' : '2px solid transparent';
-        btn.style.color = active ? '#1D7A56' : '#7A6F5C';
+        btn.style.color = active ? '#1D7A56' : 'var(--ash)';
       }
       if(pane) pane.style.display = active ? '' : 'none';
     });
